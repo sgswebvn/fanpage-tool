@@ -1,5 +1,5 @@
 import { Card, CardContent, Typography, Button } from "@mui/material";
-import { Package } from "../interfaces/package";
+import { Package } from "../../../interfaces/package";
 
 export default function PackageCard({ pkg }: { pkg: Package }) {
   return (
