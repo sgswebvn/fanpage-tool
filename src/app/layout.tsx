@@ -1,7 +1,5 @@
 import './globals.css'
 import { Metadata } from 'next'
-import Navbar from '../../components/layouts/Navbar'
-import Footer from '../../components/layouts/Footer'
 
 export const metadata: Metadata = {
   title: 'Fanpage Tool - Manage Your Facebook Pages',
@@ -34,9 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         }} />
       </head>
       <body className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-1">{children}</main>
-        <Footer />
       </body>
     </html>
   )
