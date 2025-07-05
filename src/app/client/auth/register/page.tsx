@@ -1,14 +1,15 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { TextField, Button, Container, Typography, Box, Alert, Link } from "@mui/material";
+import { TextField, Button, Container, Typography, Box, Alert } from "@mui/material";
 import api from "../../../../services/api";
-import jwt from "jsonwebtoken";
 
-export default function LoginPage() {
+
+export default function RegisterPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: "", password: "", name: "" });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,32 +18,26 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     try {
-      const res = await api.post("/auth/login", form);
-      localStorage.setItem("token", res.data.token);
-
-      // Lấy role từ response user
-      if (res.data.user.role === "admin") {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
-      }
+      const res = await api.post("/auth/register", form);
+      setSuccess("Đăng ký thành công! Đang chuyển hướng...");
+      setTimeout(() => router.push("/login"), 1500);
     } catch (err: any) {
-      setError(err.response?.data?.error || "Đăng nhập thất bại");
+      setError(err.response?.data?.error || "Đăng ký thất bại");
     }
   };
 
   return (
     <Container maxWidth="xs">
-      <Typography variant="h4" align="center" sx={{ mt: 4 }}>Đăng nhập</Typography>
+      <Typography variant="h4" align="center" sx={{ mt: 4 }}>Đăng ký</Typography>
       <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
         <TextField label="Email" name="email" value={form.email} onChange={handleChange} fullWidth sx={{ mb: 2 }} />
+        <TextField label="Tên" name="name" value={form.name} onChange={handleChange} fullWidth sx={{ mb: 2 }} />
         <TextField label="Mật khẩu" name="password" type="password" value={form.password} onChange={handleChange} fullWidth sx={{ mb: 2 }} />
-        <Button type="submit" variant="contained" fullWidth>Đăng nhập</Button>
+        <Button type="submit" variant="contained" fullWidth>Đăng ký</Button>
         {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-        <Box sx={{ mt: 2 }}>
-          <Link href="/forgot" underline="hover">Quên mật khẩu?</Link>
-        </Box>
+        {success && <Alert severity="success" sx={{ mt: 2 }}>{success}</Alert>}
       </Box>
     </Container>
   );

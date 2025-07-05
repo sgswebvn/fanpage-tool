@@ -8,6 +8,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (!token) {
       router.replace("/auth/login");
       return;

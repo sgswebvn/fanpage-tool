@@ -5,6 +5,10 @@ export const getUsers = async (): Promise<User[]> => {
   const res = await api.get("/users");
   return res.data;
 };
+export const GetProfile = async (): Promise<User> => {
+  const res = await api.get(`/auth/me`);
+  return res.data;
+};
 
 export const lockUser = async (id: string) => {
   await api.put(`/users/${id}/lock`);

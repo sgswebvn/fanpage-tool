@@ -1,23 +1,8 @@
+"use client";
 import './globals.css'
-import { Metadata } from 'next'
-
-export const metadata: Metadata = {
-  title: 'Fanpage Tool - Manage Your Facebook Pages',
-  description: 'All-in-one tool for managing Facebook fanpages, messages, posts, comments, and more.',
-  keywords: ['fanpage', 'facebook', 'management', 'tool'],
-  openGraph: {
-    title: 'Fanpage Tool',
-    description: 'All-in-one tool for managing Facebook fanpages.',
-    url: 'https://yourdomain.com',
-    siteName: 'Fanpage Tool',
-    type: 'website',
-  },
-  alternates: {
-    canonical: 'https://yourdomain.com',
-  },
-}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+
   return (
     <html lang="en">
       <head>
@@ -32,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         }} />
       </head>
       <body className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+
         <main className="flex-1">{children}</main>
       </body>
     </html>
