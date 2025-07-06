@@ -3,6 +3,9 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Getting Started
 
 First, run the development server:
+git add .
+ git commit -m "upload comment-posts"
+ git push origin
 
 ```bash
 npm run dev
