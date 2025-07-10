@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import HeroSection from "../../components/client/layouts/HeroSection";
-import SolutionsSection from "../../components/client/layouts/SolutionsSection";
-import BrandsSection from "../../components/client/layouts/BrandsSection";
-import FeaturesSection from "../../components/client/layouts/FeaturesSection";
+import Header from "../../components/client/layouts/Header";
+import Banner from "../../components/client/layouts/Banner";
+import Testimonials from "../../components/client/layouts/Testimonials";
+import Features from "../../components/client/layouts/Features";
+import Pricing from "../../components/client/layouts/Pricing";
 import Footer from "../../components/client/layouts/Footer";
-import Navbar from "../../components/client/layouts/Navbar";
 
 const solutions = [
   { title: "Bán hàng hợp kênh", icon: "/icons/omnichannel.svg" },
@@ -40,19 +40,13 @@ export default function HomePage() {
   };
 
   return (
-    <>
-      <Navbar
-        loggedIn={loggedIn}
-        anchorEl={anchorEl}
-        handleAvatarClick={handleAvatarClick}
-        handleClose={handleClose}
-        handleLogout={handleLogout}
-      />
-      <HeroSection />
-      <SolutionsSection solutions={solutions} />
-      <FeaturesSection features={features} />
-      <BrandsSection brands={brands} medias={medias} />
+   <div className="flex flex-col min-h-screen">
+      <Header />
+      <Banner />
+      <Features />
+      <Testimonials />
+      <Pricing/>
       <Footer />
-    </>
+    </div>
   );
 }
