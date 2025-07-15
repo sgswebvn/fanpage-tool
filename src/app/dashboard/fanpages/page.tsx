@@ -49,7 +49,7 @@ export default function FanpagesPage() {
     const handleConnectFacebook = () => {
         const token = localStorage.getItem("token");
         if (token) {
-            window.location.href = `https://tool-fb.onrender.com/auth/facebook?token=${token}`;
+            window.location.href = `https://api.mutifacebook.pro.vn/auth/facebook?token=${token}`;
         } else {
             setSnackbar({ open: true, message: "Bạn cần đăng nhập trước!", severity: "error" });
         }

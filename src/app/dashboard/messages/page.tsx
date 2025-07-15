@@ -48,7 +48,7 @@ export default function MessagesPage() {
     useEffect(() => {
         if (!selectedPage) return;
         if (!socket.current) {
-            socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URL || "https://tool-fb.onrender.com");
+            socket.current = io(process.env.NEXT_PUBLIC_SOCKET_URL || "https://api.mutifacebook.pro.vn");
         }
         socket.current.emit("join", { pageId: selectedPage });
         socket.current.on("fb_message", (msg: any) => {

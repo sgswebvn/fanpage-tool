@@ -13,7 +13,7 @@ export default function Profile() {
     // Giả lập lấy thông tin người dùng từ API
     const fetchUser = async () => {
       try {
-        const response = await fetch("https://tool-fb.onrender.com/auth/me", {
+        const response = await fetch("https://api.mutifacebook.pro.vn/auth/me", {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         if (!response.ok) throw new Error("Không thể tải thông tin người dùng");

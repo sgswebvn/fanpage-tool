@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://tool-fb.onrender.com", 
+  baseURL: "https://api.mutifacebook.pro.vn",
   withCredentials: true,
 });
 

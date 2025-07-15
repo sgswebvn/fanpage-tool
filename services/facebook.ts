@@ -6,5 +6,5 @@ export const getFacebookAuthUrl = async (): Promise<string> => {
 };
 
 const handleConnectFacebook = () => {
-    window.location.href = "https://tool-fb.onrender.com/auth/facebook";
+    window.location.href = "https://api.mutifacebook.pro.vn/auth/facebook";
 };
