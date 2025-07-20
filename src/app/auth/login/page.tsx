@@ -6,6 +6,18 @@ import api from "../../../../services/api";
 import Header from "../../../../components/client/layouts/Header";
 import Footer from "../../../../components/client/layouts/Footer";
 
+// Định nghĩa interface cho dữ liệu phản hồi
+interface LoginResponse {
+  token: string;
+  user: { role: string };
+}
+
+// Định nghĩa interface cho lỗi API
+interface ApiError {
+  response?: { data?: { error?: string } };
+  message: string;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
@@ -19,16 +31,16 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     try {
-      const res = await api.post("/auth/login", form);
-      localStorage.setItem("token", res.data.token);
-
+      const res = await api.post<LoginResponse>("/auth/login", form);
+      localStorage.setItem("authToken", res.data.token); // Sửa key thành authToken
       if (res.data.user.role === "admin") {
         router.push("/admin");
       } else {
         router.push("/dashboard");
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Đăng nhập thất bại");
+    } catch (err: unknown) {
+      const apiError = err as ApiError;
+      setError(apiError.response?.data?.error || apiError.message || "Đăng nhập thất bại");
     }
   };
 

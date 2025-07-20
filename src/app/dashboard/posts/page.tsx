@@ -1,11 +1,13 @@
-// app/posts/page.tsx
 "use client";
-import { useEffect, useState, useRef } from "react";
-import { Box, Typography, List, ListItem, ListItemText, CircularProgress, ListItemButton, Button, Alert } from "@mui/material";
+import { useEffect, useState } from "react";
 import { getConnectedPages } from "../../../../services/fanpages";
 import { getPostsByPage } from "../../../../services/post";
+import { Post } from "../../../../interfaces/post";
+import { Fanpage } from "../../../../interfaces/fanpage";
+import FanpageSelector from "../../../../components/client/dashboard/FanpageSelector";
 import CommentList from "../../../../components/CommentList";
-import { Post, Fanpage } from "../../../../interfaces/post";
+import Image from "next/image";
+import dayjs from "dayjs";
 
 export default function PostsPage() {
     const [pages, setPages] = useState<Fanpage[]>([]);
@@ -13,166 +15,143 @@ export default function PostsPage() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const loadedPageRef = useRef<string | null>(null);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
+        open: false,
+        message: "",
+        severity: "success",
+    });
 
     useEffect(() => {
         setLoading(true);
+        setError(null);
         getConnectedPages()
-            .then(data => {
+            .then((data) => {
                 setPages(data);
                 const lastPage = localStorage.getItem("selectedPageId");
-                if (lastPage && data.some((p: Fanpage) => p.pageId === lastPage)) {
+                if (lastPage && data.some((p) => p.pageId === lastPage)) {
                     setSelectedPage(lastPage);
                 } else if (data.length > 0) {
                     setSelectedPage(data[0].pageId);
                 }
             })
-            .catch(err => setError(err.message || "Không thể lấy danh sách Fanpage"))
+            .catch(() => {
+                setError("Không thể lấy danh sách Fanpage");
+                setSnackbar({ open: true, message: "Không thể lấy danh sách Fanpage", severity: "error" });
+            })
             .finally(() => setLoading(false));
     }, []);
 
     useEffect(() => {
         if (selectedPage) {
-            localStorage.setItem("selectedPageId", selectedPage);
-        }
-    }, [selectedPage]);
-
-    useEffect(() => {
-        if (selectedPage && loadedPageRef.current !== selectedPage) {
             setLoading(true);
             setError(null);
-            getPostsByPage(selectedPage)
-                .then(data => {
-                    console.log("Posts:", data); // Debug
-                    setPosts(data);
+            getPostsByPage(selectedPage, page, 10)
+                .then((data) => {
+                    setPosts((prev) => (page === 1 ? data : [...prev, ...data]));
+                    setHasMore(data.length === 10);
                 })
-                .catch(err => setError(err.message || "Không thể lấy bài đăng"))
-                .finally(() => {
-                    setLoading(false);
-                    loadedPageRef.current = selectedPage;
-                });
+                .catch((err) => {
+                    setError(err.message || "Không thể lấy bài đăng");
+                    setSnackbar({ open: true, message: err.message || "Không thể lấy bài đăng", severity: "error" });
+                })
+                .finally(() => setLoading(false));
         }
-    }, [selectedPage]);
+    }, [selectedPage, page]);
+
+    useEffect(() => {
+        if (snackbar.open) {
+            const timer = setTimeout(() => setSnackbar({ ...snackbar, open: false }), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [snackbar]);
 
     return (
-        <Box sx={{ p: 3 }}>
-            <Typography variant="h5" gutterBottom>Danh sách bài viết Fanpage</Typography>
-            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-            <Box sx={{ mb: 2, display: "flex", gap: 2 }}>
-                <Typography>Chọn Fanpage:</Typography>
-                <List sx={{ display: "flex", flexDirection: "row", gap: 1, p: 0 }}>
-                    {pages.map(page => (
-                        <ListItemButton
-                            key={page.pageId}
-                            selected={selectedPage === page.pageId}
-                            onClick={() => setSelectedPage(page.pageId)}
-                            sx={{
-                                borderRadius: 2,
-                                bgcolor: selectedPage === page.pageId ? "#1976d2" : "#f5f5f5",
-                                color: selectedPage === page.pageId ? "#fff" : "#333",
-                                boxShadow: selectedPage === page.pageId ? 3 : 0,
-                                transition: "all 0.2s",
-                                minWidth: 120,
-                                justifyContent: "center",
-                                fontWeight: 600
-                            }}
-                        >
-                            <ListItemText primary={page.name} sx={{ textAlign: "center" }} />
-                        </ListItemButton>
-                    ))}
-                </List>
-            </Box>
-            {loading && <CircularProgress />}
-            {posts.length === 0 && !loading && !error && (
-                <Typography color="textSecondary">Chưa có bài đăng nào.</Typography>
+        <div className="max-w-3xl mx-auto py-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Danh sách bài viết</h2>
+            {error && (
+                <div className="mb-4 p-2 bg-red-100 text-red-700 rounded-lg">
+                    {error}
+                </div>
             )}
-            <List sx={{ mt: 2 }}>
-                {posts.map(post => (
-                    <ListItem
-                        key={post.postId}
-                        disableGutters
-                        sx={{
-                            display: "block",
-                            mb: 3,
-                            borderRadius: 3,
-                            bgcolor: "#fff",
-                            boxShadow: 3,
-                            p: 0,
-                            border: "1px solid #e0e0e0",
-                            maxWidth: 600,
-                            mx: "auto",
-                            position: "relative",
-                            overflow: "hidden",
-                            transition: "box-shadow 0.2s",
-                            ":hover": { boxShadow: 6 }
-                        }}
-                    >
-                        <Box sx={{ display: "flex", alignItems: "flex-start", p: 2, pb: 0 }}>
-                            <Box
-                                sx={{
-                                    width: 48,
-                                    height: 48,
-                                    borderRadius: "50%",
-                                    bgcolor: "#1976d2",
-                                    color: "#fff",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontWeight: 700,
-                                    fontSize: 22,
-                                    mr: 2
-                                }}
-                            >
-                                {post.from?.name?.[0] || "F"}
-                            </Box>
-                            <Box sx={{ flex: 1 }}>
-                                <Typography fontWeight={700} fontSize={16}>
-                                    {post.from?.name || "Fanpage"}
-                                </Typography>
-                                <Typography fontSize={13} color="#888">
-                                    {new Date(post.created_time).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}
-                                </Typography>
-                            </Box>
-                        </Box>
-                        <Box sx={{ px: 2, pt: 1, pb: 1 }}>
-                            <Typography sx={{ fontSize: 18, mb: 1, fontWeight: 400, whiteSpace: "pre-line" }}>
-                                {post.message || "[Không có nội dung]"}
-                            </Typography>
-                            {post.picture && (
-                                <Box sx={{ mb: 2 }}>
-                                    <img src={post.picture} alt="post" style={{ maxWidth: "100%", borderRadius: 8 }} />
-                                </Box>
-                            )}
-                        </Box>
-                        <Box sx={{ px: 2, pb: 1, display: "flex", gap: 2 }}>
-                            <Button
-                                size="small"
-                                sx={{ color: "#65676b", fontWeight: 600, textTransform: "none", px: 1, minWidth: 0 }}
-                                startIcon={<span style={{ fontSize: 18 }}>👍</span>}
-                            >
-                                Thích
-                            </Button>
-                            <Button
-                                size="small"
-                                sx={{ color: "#65676b", fontWeight: 600, textTransform: "none", px: 1, minWidth: 0 }}
-                                startIcon={<span style={{ fontSize: 18 }}>💬</span>}
-                            >
-                                Bình luận
-                            </Button>
-                            <Button
-                                size="small"
-                                sx={{ color: "#65676b", fontWeight: 600, textTransform: "none", px: 1, minWidth: 0 }}
-                                startIcon={<span style={{ fontSize: 18 }}>↗️</span>}
-                            >
-                                Chia sẻ
-                            </Button>
-                        </Box>
-                        <Box sx={{ px: 2, pb: 2 }}>
-                            <CommentList pageId={selectedPage!} postId={post.postId} />
-                        </Box>
-                    </ListItem>
-                ))}
-            </List>
-        </Box>
+            {pages.length > 0 && (
+                <div className="mb-6">
+                    <FanpageSelector selected={selectedPage} onSelect={setSelectedPage} />
+                </div>
+            )}
+            {loading && page === 1 ? (
+                <div className="animate-pulse space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                        <div key={i} className="bg-white rounded-lg shadow p-4">
+                            <div className="flex items-center mb-2">
+                                <div className="w-10 h-10 bg-gray-200 rounded-full mr-3"></div>
+                                <div className="space-y-2 flex-1">
+                                    <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                                </div>
+                            </div>
+                            <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                        </div>
+                    ))}
+                </div>
+            ) : posts.length === 0 ? (
+                <p className="text-gray-600">Chưa có bài đăng nào.</p>
+            ) : (
+                <div className="space-y-4">
+                    {posts.map((post) => (
+                        <div key={post.postId} className="bg-white rounded-lg shadow overflow-hidden">
+                            <div className="flex items-center p-4 border-b border-gray-200">
+                                <Image
+                                    src={pages.find((p) => p.pageId === post.pageId)?.picture || "/default-avatar.png"}
+                                    alt="Fanpage"
+                                    width={40}
+                                    height={40}
+                                    className="rounded-full"
+                                />
+                                <div className="ml-3">
+                                    <p className="text-gray-900 font-medium">{pages.find((p) => p.pageId === post.pageId)?.name || "Fanpage"}</p>
+                                    <p className="text-xs text-gray-600">{dayjs(post.created_time).format("DD/MM/YYYY HH:mm")}</p>
+                                </div>
+                            </div>
+                            <div className="p-4">
+                                <p className="text-gray-800 whitespace-pre-line">{post.message || "[Không có nội dung]"}</p>
+                                {post.picture && (
+                                    <Image
+                                        src={post.picture}
+                                        alt="Post"
+                                        width={600}
+                                        height={400}
+                                        className="w-full h-auto rounded-lg mt-2"
+                                    />
+                                )}
+                            </div>
+                            <div className="px-4 pb-2 flex gap-4 text-sm text-gray-600">
+                                <p>{post.likes} Thích</p>
+                                <p>{post.shares} Chia sẻ</p>
+                            </div>
+                            <div className="px-4 pb-4">
+                                <CommentList pageId={post.pageId} postId={post.postId} />
+                            </div>
+                        </div>
+                    ))}
+                    {hasMore && !error && (
+                        <button
+                            onClick={() => setPage((prev) => prev + 1)}
+                            className="mt-4 text-blue-500 hover:text-blue-600 text-sm"
+                        >
+                            Tải thêm
+                        </button>
+                    )}
+                </div>
+            )}
+            {snackbar.open && (
+                <div
+                    className={`fixed bottom-4 right-4 p-4 rounded-lg text-white ${snackbar.severity === "success" ? "bg-green-500" : "bg-red-500"}`}
+                >
+                    {snackbar.message}
+                </div>
+            )}
+        </div>
     );
 }

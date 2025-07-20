@@ -27,7 +27,7 @@ export default function Header() {
         </div>
         <div className="space-x-2 sm:space-x-4">
           {isLoggedIn ? (
-            
+
             <>
               <Link href="/auth/profile" className="text-gray-200 hover:text-teal-300 text-sm sm:text-base">Hồ sơ</Link>
 
@@ -40,8 +40,8 @@ export default function Header() {
             </>
           ) : (
             <>
-              <Link href="/login" className="text-teal-200 font-semibold hover:text-teal-100 text-sm sm:text-base">Đăng nhập</Link>
-              <Link href="/register" className="bg-teal-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-teal-600 transition duration-200 text-sm sm:text-base">
+              <Link href="/auth/login" className="text-teal-200 font-semibold hover:text-teal-100 text-sm sm:text-base">Đăng nhập</Link>
+              <Link href="/auth/register" className="bg-teal-500 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-teal-600 transition duration-200 text-sm sm:text-base">
                 Dùng thử miễn phí
               </Link>
             </>

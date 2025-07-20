@@ -6,6 +6,12 @@ import Header from "../../../../components/client/layouts/Header";
 import Footer from "../../../../components/client/layouts/Footer";
 import api from "../../../../services/api";
 
+// Định nghĩa interface cho lỗi API
+interface ApiError {
+  response?: { data?: { error?: string } };
+  message: string;
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "", name: "" });
@@ -21,11 +27,12 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
     try {
-      const res = await api.post("/auth/register", form);
+      await api.post("/auth/register", form);
       setSuccess("Đăng ký thành công! Đang chuyển hướng...");
-      setTimeout(() => router.push("/login"), 1500);
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Đăng ký thất bại");
+      setTimeout(() => router.push("/auth/login"), 1500);
+    } catch (err: unknown) {
+      const apiError = err as ApiError;
+      setError(apiError.response?.data?.error || apiError.message || "Đăng ký thất bại");
     }
   };
 
